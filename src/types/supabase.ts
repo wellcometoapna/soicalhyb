@@ -14,6 +14,147 @@ export type Database = {
   }
   public: {
     Tables: {
+      posts: {
+        Row: {
+          analytics_data: Json | null
+          content: string
+          created_at: string | null
+          hashtags: string[] | null
+          id: string
+          media_urls: string[] | null
+          platforms: string[]
+          published_at: string | null
+          scheduled_at: string | null
+          status: string | null
+          updated_at: string | null
+          user_id: string | null
+        }
+        Insert: {
+          analytics_data?: Json | null
+          content: string
+          created_at?: string | null
+          hashtags?: string[] | null
+          id?: string
+          media_urls?: string[] | null
+          platforms: string[]
+          published_at?: string | null
+          scheduled_at?: string | null
+          status?: string | null
+          updated_at?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          analytics_data?: Json | null
+          content?: string
+          created_at?: string | null
+          hashtags?: string[] | null
+          id?: string
+          media_urls?: string[] | null
+          platforms?: string[]
+          published_at?: string | null
+          scheduled_at?: string | null
+          status?: string | null
+          updated_at?: string | null
+          user_id?: string | null
+        }
+        Relationships: []
+      }
+      social_accounts: {
+        Row: {
+          access_token: string | null
+          account_data: Json | null
+          created_at: string | null
+          display_name: string | null
+          id: string
+          is_active: boolean | null
+          platform: string
+          platform_user_id: string
+          profile_image_url: string | null
+          refresh_token: string | null
+          token_expires_at: string | null
+          updated_at: string | null
+          user_id: string | null
+          username: string | null
+        }
+        Insert: {
+          access_token?: string | null
+          account_data?: Json | null
+          created_at?: string | null
+          display_name?: string | null
+          id?: string
+          is_active?: boolean | null
+          platform: string
+          platform_user_id: string
+          profile_image_url?: string | null
+          refresh_token?: string | null
+          token_expires_at?: string | null
+          updated_at?: string | null
+          user_id?: string | null
+          username?: string | null
+        }
+        Update: {
+          access_token?: string | null
+          account_data?: Json | null
+          created_at?: string | null
+          display_name?: string | null
+          id?: string
+          is_active?: boolean | null
+          platform?: string
+          platform_user_id?: string
+          profile_image_url?: string | null
+          refresh_token?: string | null
+          token_expires_at?: string | null
+          updated_at?: string | null
+          user_id?: string | null
+          username?: string | null
+        }
+        Relationships: []
+      }
+      team_members: {
+        Row: {
+          created_at: string | null
+          email: string
+          id: string
+          invited_at: string | null
+          invited_by: string | null
+          joined_at: string | null
+          permissions: Json | null
+          role: string | null
+          status: string | null
+          updated_at: string | null
+          user_id: string | null
+          workspace_id: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          email: string
+          id?: string
+          invited_at?: string | null
+          invited_by?: string | null
+          joined_at?: string | null
+          permissions?: Json | null
+          role?: string | null
+          status?: string | null
+          updated_at?: string | null
+          user_id?: string | null
+          workspace_id?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          email?: string
+          id?: string
+          invited_at?: string | null
+          invited_by?: string | null
+          joined_at?: string | null
+          permissions?: Json | null
+          role?: string | null
+          status?: string | null
+          updated_at?: string | null
+          user_id?: string | null
+          workspace_id?: string | null
+        }
+        Relationships: []
+      }
       users: {
         Row: {
           avatar_url: string | null

@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { cn } from "../lib/utils";
 import { Button } from "./ui/button";
 import { Avatar, AvatarFallback } from "./ui/avatar";
@@ -92,6 +92,25 @@ export default function DashboardSidebar({ user }: DashboardSidebarProps) {
   const pathname = usePathname();
   const supabase = createClient();
   const router = useRouter();
+  const [connectedAccounts, setConnectedAccounts] = useState<any[]>([]);
+
+  useEffect(() => {
+    fetchConnectedAccounts();
+  }, []);
+
+  const fetchConnectedAccounts = async () => {
+    try {
+      const { data } = await supabase
+        .from('social_accounts')
+        .select('platform')
+        .eq('user_id', user.id)
+        .eq('is_active', true);
+      
+      setConnectedAccounts(data || []);
+    } catch (error) {
+      console.error('Error fetching connected accounts:', error);
+    }
+  };
 
   const handleSignOut = async () => {
     await supabase.auth.signOut();
@@ -100,6 +119,19 @@ export default function DashboardSidebar({ user }: DashboardSidebarProps) {
 
   const [connectOpen, setConnectOpen] = useState(false);
   const [selectedPlatform, setSelectedPlatform] = useState<string | null>(null);
+
+  const handleConnect = async (platform: string) => {
+    try {
+      const response = await fetch(`/api/auth/oauth?platform=${platform}`);
+      const data = await response.json();
+      
+      if (data.authUrl) {
+        window.location.href = data.authUrl;
+      }
+    } catch (error) {
+      console.error('Error initiating OAuth:', error);
+    }
+  };
 
   const platforms = [
     { key: "facebook", name: "Facebook", icon: Globe, color: "bg-blue-600" },
@@ -147,6 +179,13 @@ export default function DashboardSidebar({ user }: DashboardSidebarProps) {
           <Sparkles className="w-3 h-3 mr-1" />
           Pro Plan
         </Badge>
+        
+        {/* Connected Accounts Status */}
+        {connectedAccounts.length > 0 && (
+          <div className="mt-3 text-xs text-slate-400">
+            {connectedAccounts.length} account{connectedAccounts.length > 1 ? 's' : ''} connected
+          </div>
+        )}
       </div>
 
       {/* Navigation */}
@@ -187,50 +226,58 @@ export default function DashboardSidebar({ user }: DashboardSidebarProps) {
             >
               <Link2 className="w-5 h-5" />
               Connect Accounts
+              {connectedAccounts.length > 0 && (
+                <Badge className="ml-auto bg-green-600 text-white text-xs">
+                  {connectedAccounts.length}
+                </Badge>
+              )}
             </Button>
           </DialogTrigger>
           <DialogContent className="bg-slate-900 border-slate-800">
             <DialogHeader>
               <DialogTitle className="text-white">
-                Connect a social account
+                Connect Social Media Accounts
               </DialogTitle>
               <DialogDescription className="text-slate-400">
-                Choose a platform to link. You will be able to authorize via
-                OAuth in a future step.
+                Connect your social media accounts to start posting and managing content.
               </DialogDescription>
             </DialogHeader>
-            <div className="grid grid-cols-2 gap-3">
-              {platforms.map((p) => (
-                <button
-                  key={p.key}
-                  onClick={() => setSelectedPlatform(p.name)}
-                  className={cn(
-                    "flex items-center gap-2 rounded-lg border border-slate-800 bg-slate-800/60 px-3 py-2 text-left transition hover:bg-slate-800 focus:outline-none",
-                  )}
-                >
-                  <span
+            <div className="grid grid-cols-1 gap-3">
+              {platforms.map((p) => {
+                const isConnected = connectedAccounts.some(acc => acc.platform === p.key);
+                return (
+                  <button
+                    key={p.key}
+                    onClick={() => isConnected ? null : handleConnect(p.key)}
+                    disabled={isConnected}
                     className={cn(
-                      "inline-flex h-6 w-6 items-center justify-center rounded",
-                      p.color,
+                      "flex items-center gap-3 rounded-lg border border-slate-800 bg-slate-800/60 px-4 py-3 text-left transition hover:bg-slate-800 focus:outline-none",
+                      isConnected && "opacity-75 cursor-not-allowed"
                     )}
                   >
-                    <p.icon className="h-4 w-4 text-white" />
-                  </span>
-                  <span className="text-sm text-slate-200">{p.name}</span>
-                </button>
-              ))}
+                    <span
+                      className={cn(
+                        "inline-flex h-8 w-8 items-center justify-center rounded",
+                        p.color,
+                      )}
+                    >
+                      <p.icon className="h-4 w-4 text-white" />
+                    </span>
+                    <div className="flex-1">
+                      <span className="text-sm font-medium text-slate-200">{p.name}</span>
+                      <div className="text-xs text-slate-400">
+                        {isConnected ? "Connected" : "Click to connect"}
+                      </div>
+                    </div>
+                    {isConnected && (
+                      <Badge className="bg-green-600 text-white">
+                        ✓ Connected
+                      </Badge>
+                    )}
+                  </button>
+                );
+              })}
             </div>
-            {selectedPlatform && (
-              <div className="mt-4 rounded-lg border border-slate-800 bg-slate-900 p-3">
-                <p className="mb-2 text-sm text-slate-300">
-                  Selected:{" "}
-                  <span className="text-white">{selectedPlatform}</span>
-                </p>
-                <Button className="bg-purple-600 hover:bg-purple-700 text-white w-full">
-                  Continue with {selectedPlatform}
-                </Button>
-              </div>
-            )}
             <DialogFooter />
           </DialogContent>
         </Dialog>
