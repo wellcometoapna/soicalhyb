@@ -14,6 +14,151 @@ export type Database = {
   }
   public: {
     Tables: {
+      analytics_data: {
+        Row: {
+          additional_data: Json | null
+          created_at: string | null
+          date_recorded: string | null
+          id: string
+          metric_type: string
+          metric_value: number | null
+          platform: string
+          post_id: string | null
+          user_id: string | null
+        }
+        Insert: {
+          additional_data?: Json | null
+          created_at?: string | null
+          date_recorded?: string | null
+          id?: string
+          metric_type: string
+          metric_value?: number | null
+          platform: string
+          post_id?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          additional_data?: Json | null
+          created_at?: string | null
+          date_recorded?: string | null
+          id?: string
+          metric_type?: string
+          metric_value?: number | null
+          platform?: string
+          post_id?: string | null
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "analytics_data_post_id_fkey"
+            columns: ["post_id"]
+            isOneToOne: false
+            referencedRelation: "posts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      folders: {
+        Row: {
+          created_at: string | null
+          description: string | null
+          folder_type: string | null
+          id: string
+          name: string
+          parent_id: string | null
+          updated_at: string | null
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          description?: string | null
+          folder_type?: string | null
+          id?: string
+          name: string
+          parent_id?: string | null
+          updated_at?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          description?: string | null
+          folder_type?: string | null
+          id?: string
+          name?: string
+          parent_id?: string | null
+          updated_at?: string | null
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "folders_parent_id_fkey"
+            columns: ["parent_id"]
+            isOneToOne: false
+            referencedRelation: "folders"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      media_files: {
+        Row: {
+          alt_text: string | null
+          created_at: string | null
+          dimensions: string | null
+          file_size: number
+          file_type: string
+          file_url: string
+          filename: string
+          folder: string | null
+          id: string
+          is_favorite: boolean | null
+          metadata: Json | null
+          original_filename: string
+          tags: string[] | null
+          thumbnail_url: string | null
+          updated_at: string | null
+          usage_count: number | null
+          user_id: string | null
+        }
+        Insert: {
+          alt_text?: string | null
+          created_at?: string | null
+          dimensions?: string | null
+          file_size: number
+          file_type: string
+          file_url: string
+          filename: string
+          folder?: string | null
+          id?: string
+          is_favorite?: boolean | null
+          metadata?: Json | null
+          original_filename: string
+          tags?: string[] | null
+          thumbnail_url?: string | null
+          updated_at?: string | null
+          usage_count?: number | null
+          user_id?: string | null
+        }
+        Update: {
+          alt_text?: string | null
+          created_at?: string | null
+          dimensions?: string | null
+          file_size?: number
+          file_type?: string
+          file_url?: string
+          filename?: string
+          folder?: string | null
+          id?: string
+          is_favorite?: boolean | null
+          metadata?: Json | null
+          original_filename?: string
+          tags?: string[] | null
+          thumbnail_url?: string | null
+          updated_at?: string | null
+          usage_count?: number | null
+          user_id?: string | null
+        }
+        Relationships: []
+      }
       posts: {
         Row: {
           analytics_data: Json | null
@@ -153,6 +298,98 @@ export type Database = {
           user_id?: string | null
           workspace_id?: string | null
         }
+        Relationships: [
+          {
+            foreignKeyName: "fk_workspace"
+            columns: ["workspace_id"]
+            isOneToOne: false
+            referencedRelation: "workspaces"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      template_categories: {
+        Row: {
+          color: string | null
+          created_at: string | null
+          description: string | null
+          icon: string | null
+          id: string
+          name: string
+        }
+        Insert: {
+          color?: string | null
+          created_at?: string | null
+          description?: string | null
+          icon?: string | null
+          id?: string
+          name: string
+        }
+        Update: {
+          color?: string | null
+          created_at?: string | null
+          description?: string | null
+          icon?: string | null
+          id?: string
+          name?: string
+        }
+        Relationships: []
+      }
+      templates: {
+        Row: {
+          category: string | null
+          content: string
+          created_at: string | null
+          description: string | null
+          hashtags: string[] | null
+          id: string
+          is_favorite: boolean | null
+          is_public: boolean | null
+          media_urls: string[] | null
+          platforms: string[] | null
+          tags: string[] | null
+          template_data: Json | null
+          title: string
+          updated_at: string | null
+          usage_count: number | null
+          user_id: string | null
+        }
+        Insert: {
+          category?: string | null
+          content: string
+          created_at?: string | null
+          description?: string | null
+          hashtags?: string[] | null
+          id?: string
+          is_favorite?: boolean | null
+          is_public?: boolean | null
+          media_urls?: string[] | null
+          platforms?: string[] | null
+          tags?: string[] | null
+          template_data?: Json | null
+          title: string
+          updated_at?: string | null
+          usage_count?: number | null
+          user_id?: string | null
+        }
+        Update: {
+          category?: string | null
+          content?: string
+          created_at?: string | null
+          description?: string | null
+          hashtags?: string[] | null
+          id?: string
+          is_favorite?: boolean | null
+          is_public?: boolean | null
+          media_urls?: string[] | null
+          platforms?: string[] | null
+          tags?: string[] | null
+          template_data?: Json | null
+          title?: string
+          updated_at?: string | null
+          usage_count?: number | null
+          user_id?: string | null
+        }
         Relationships: []
       }
       users: {
@@ -191,6 +428,36 @@ export type Database = {
           token_identifier?: string
           updated_at?: string | null
           user_id?: string | null
+        }
+        Relationships: []
+      }
+      workspaces: {
+        Row: {
+          created_at: string | null
+          description: string | null
+          id: string
+          name: string
+          owner_id: string | null
+          settings: Json | null
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          name: string
+          owner_id?: string | null
+          settings?: Json | null
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          name?: string
+          owner_id?: string | null
+          settings?: Json | null
+          updated_at?: string | null
         }
         Relationships: []
       }

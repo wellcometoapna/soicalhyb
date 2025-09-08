@@ -4,10 +4,22 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Slider } from "@/components/ui/slider";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { Progress } from "@/components/ui/progress";
 import { useState, useRef, useCallback } from "react";
@@ -99,7 +111,7 @@ export default function MediaLibraryClient({ user }: MediaLibraryClientProps) {
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
   const [selectedItems, setSelectedItems] = useState<string[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
-  const [selectedFilter, setSelectedFilter] = useState("all");
+  const [mediaFilter, setMediaFilter] = useState("all");
   const [editingItem, setEditingItem] = useState<MediaItem | null>(null);
   const [uploadOpen, setUploadOpen] = useState(false);
   const [createFolderOpen, setCreateFolderOpen] = useState(false);
@@ -110,7 +122,12 @@ export default function MediaLibraryClient({ user }: MediaLibraryClientProps) {
 
   // Editor states
   const [activeTab, setActiveTab] = useState("crop");
-  const [cropSettings, setCropSettings] = useState({ x: 0, y: 0, width: 100, height: 100 });
+  const [cropSettings, setCropSettings] = useState({
+    x: 0,
+    y: 0,
+    width: 100,
+    height: 100,
+  });
   const [adjustments, setAdjustments] = useState({
     brightness: 0,
     contrast: 0,
@@ -125,7 +142,7 @@ export default function MediaLibraryClient({ user }: MediaLibraryClientProps) {
     tint: 0,
     vibrance: 0,
   });
-  const [selectedFilter, setSelectedFilterEffect] = useState("none");
+  const [selectedFilterEffect, setSelectedFilterEffect] = useState("none");
   const [rotation, setRotation] = useState(0);
   const [flipH, setFlipH] = useState(false);
   const [flipV, setFlipV] = useState(false);
@@ -144,11 +161,11 @@ export default function MediaLibraryClient({ user }: MediaLibraryClientProps) {
       usage: 5,
       folder: "Landscapes",
       favorite: true,
-      description: "Beautiful sunset over the city skyline"
+      description: "Beautiful sunset over the city skyline",
     },
     {
       id: "2",
-      type: "image", 
+      type: "image",
       src: "https://images.unsplash.com/photo-1469474968028-56623f02e42e?w=600&q=80",
       title: "Mountain Landscape",
       tags: ["nature", "mountain", "outdoor", "scenic"],
@@ -198,7 +215,14 @@ export default function MediaLibraryClient({ user }: MediaLibraryClientProps) {
     },
   ];
 
-  const folders = ["All", "Landscapes", "Nature", "Business", "Videos", "Design"];
+  const folders = [
+    "All",
+    "Landscapes",
+    "Nature",
+    "Business",
+    "Videos",
+    "Design",
+  ];
 
   const filterEffects = [
     { name: "None", value: "none" },
@@ -216,30 +240,47 @@ export default function MediaLibraryClient({ user }: MediaLibraryClientProps) {
   const cropPresets = [
     { name: "Original", ratio: null },
     { name: "Square", ratio: 1 },
-    { name: "16:9", ratio: 16/9 },
-    { name: "4:3", ratio: 4/3 },
-    { name: "3:2", ratio: 3/2 },
+    { name: "16:9", ratio: 16 / 9 },
+    { name: "4:3", ratio: 4 / 3 },
+    { name: "3:2", ratio: 3 / 2 },
     { name: "Instagram Post", ratio: 1 },
-    { name: "Instagram Story", ratio: 9/16 },
-    { name: "Facebook Cover", ratio: 820/312 },
-    { name: "Twitter Header", ratio: 1500/500 },
+    { name: "Instagram Story", ratio: 9 / 16 },
+    { name: "Facebook Cover", ratio: 820 / 312 },
+    { name: "Twitter Header", ratio: 1500 / 500 },
   ];
 
   const filterOptions = [
     { value: "all", label: "All Media", count: mediaItems.length },
-    { value: "image", label: "Images", count: mediaItems.filter(item => item.type === "image").length },
-    { value: "video", label: "Videos", count: mediaItems.filter(item => item.type === "video").length },
-    { value: "favorites", label: "Favorites", count: mediaItems.filter(item => item.favorite).length },
+    {
+      value: "image",
+      label: "Images",
+      count: mediaItems.filter((item) => item.type === "image").length,
+    },
+    {
+      value: "video",
+      label: "Videos",
+      count: mediaItems.filter((item) => item.type === "video").length,
+    },
+    {
+      value: "favorites",
+      label: "Favorites",
+      count: mediaItems.filter((item) => item.favorite).length,
+    },
     { value: "recent", label: "Recent", count: 10 },
   ];
 
-  const filteredItems = mediaItems.filter(item => {
-    const matchesSearch = item.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                         item.tags.some(tag => tag.toLowerCase().includes(searchQuery.toLowerCase()));
-    const matchesFilter = selectedFilter === "all" || 
-                         (selectedFilter === "recent" && new Date(item.uploadDate) > new Date("2024-01-12")) ||
-                         (selectedFilter === "favorites" && item.favorite) ||
-                         item.type === selectedFilter;
+  const filteredItems = mediaItems.filter((item) => {
+    const matchesSearch =
+      item.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      item.tags.some((tag) =>
+        tag.toLowerCase().includes(searchQuery.toLowerCase()),
+      );
+    const matchesFilter =
+      mediaFilter === "all" ||
+      (mediaFilter === "recent" &&
+        new Date(item.uploadDate) > new Date("2024-01-12")) ||
+      (mediaFilter === "favorites" && item.favorite) ||
+      item.type === mediaFilter;
     return matchesSearch && matchesFilter;
   });
 
@@ -257,7 +298,7 @@ export default function MediaLibraryClient({ user }: MediaLibraryClientProps) {
     e.preventDefault();
     e.stopPropagation();
     setDragActive(false);
-    
+
     if (e.dataTransfer.files && e.dataTransfer.files[0]) {
       handleFiles(e.dataTransfer.files);
     }
@@ -266,10 +307,10 @@ export default function MediaLibraryClient({ user }: MediaLibraryClientProps) {
   const handleFiles = (files: FileList) => {
     setIsUploading(true);
     setUploadProgress(0);
-    
+
     // Simulate upload progress
     const interval = setInterval(() => {
-      setUploadProgress(prev => {
+      setUploadProgress((prev) => {
         if (prev >= 100) {
           clearInterval(interval);
           setIsUploading(false);
@@ -282,10 +323,10 @@ export default function MediaLibraryClient({ user }: MediaLibraryClientProps) {
   };
 
   const toggleSelection = (itemId: string) => {
-    setSelectedItems(prev => 
-      prev.includes(itemId) 
-        ? prev.filter(id => id !== itemId)
-        : [...prev, itemId]
+    setSelectedItems((prev) =>
+      prev.includes(itemId)
+        ? prev.filter((id) => id !== itemId)
+        : [...prev, itemId],
     );
   };
 
@@ -296,11 +337,16 @@ export default function MediaLibraryClient({ user }: MediaLibraryClientProps) {
 
   const getFileIcon = (type: string) => {
     switch (type) {
-      case "image": return ImageIcon;
-      case "video": return Video;
-      case "audio": return Music;
-      case "document": return FileText;
-      default: return FileText;
+      case "image":
+        return ImageIcon;
+      case "video":
+        return Video;
+      case "audio":
+        return Music;
+      case "document":
+        return FileText;
+      default:
+        return FileText;
     }
   };
 
@@ -328,7 +374,13 @@ export default function MediaLibraryClient({ user }: MediaLibraryClientProps) {
 
   const applyEdits = () => {
     // In real app, this would process the image and save
-    console.log("Applying edits:", { adjustments, selectedFilter, rotation, flipH, flipV });
+    console.log("Applying edits:", {
+      adjustments,
+      selectedFilterEffect,
+      rotation,
+      flipH,
+      flipV,
+    });
     setEditingItem(null);
   };
 
@@ -337,10 +389,10 @@ export default function MediaLibraryClient({ user }: MediaLibraryClientProps) {
       {filteredItems.map((item) => {
         const isSelected = selectedItems.includes(item.id);
         const FileIcon = getFileIcon(item.type);
-        
+
         return (
-          <Card 
-            key={item.id} 
+          <Card
+            key={item.id}
             className={`bg-slate-800 border-slate-700 overflow-hidden cursor-pointer transition-all hover:border-purple-500 ${
               isSelected ? "border-purple-500 ring-2 ring-purple-500/20" : ""
             }`}
@@ -354,26 +406,31 @@ export default function MediaLibraryClient({ user }: MediaLibraryClientProps) {
               />
               <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors" />
               <div className="absolute top-2 left-2">
-                <Badge variant="secondary" className="bg-slate-900/80 text-white">
+                <Badge
+                  variant="secondary"
+                  className="bg-slate-900/80 text-white"
+                >
                   <FileIcon className="w-3 h-3 mr-1" />
                   {item.type}
                 </Badge>
               </div>
               <div className="absolute top-2 right-2 flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                <Button 
-                  size="sm" 
-                  variant="secondary" 
+                <Button
+                  size="sm"
+                  variant="secondary"
                   className="bg-slate-900/80 text-white hover:bg-slate-800 p-1"
                   onClick={(e) => {
                     e.stopPropagation();
                     toggleFavorite(item.id);
                   }}
                 >
-                  <Heart className={`w-3 h-3 ${item.favorite ? 'fill-red-500 text-red-500' : ''}`} />
+                  <Heart
+                    className={`w-3 h-3 ${item.favorite ? "fill-red-500 text-red-500" : ""}`}
+                  />
                 </Button>
-                <Button 
-                  size="sm" 
-                  variant="secondary" 
+                <Button
+                  size="sm"
+                  variant="secondary"
                   className="bg-slate-900/80 text-white hover:bg-slate-800 p-1"
                 >
                   <Eye className="w-3 h-3" />
@@ -383,7 +440,9 @@ export default function MediaLibraryClient({ user }: MediaLibraryClientProps) {
             <CardHeader className="p-4">
               <CardTitle className="text-white text-sm truncate flex items-center gap-2">
                 {item.title}
-                {item.favorite && <Star className="w-3 h-3 fill-yellow-400 text-yellow-400" />}
+                {item.favorite && (
+                  <Star className="w-3 h-3 fill-yellow-400 text-yellow-400" />
+                )}
               </CardTitle>
               <div className="flex items-center justify-between text-xs text-slate-400">
                 <span>{item.dimensions}</span>
@@ -393,12 +452,19 @@ export default function MediaLibraryClient({ user }: MediaLibraryClientProps) {
             <CardContent className="p-4 pt-0">
               <div className="flex flex-wrap gap-1 mb-3">
                 {item.tags.slice(0, 3).map((tag) => (
-                  <Badge key={tag} variant="outline" className="text-xs border-slate-600 text-slate-300">
+                  <Badge
+                    key={tag}
+                    variant="outline"
+                    className="text-xs border-slate-600 text-slate-300"
+                  >
                     #{tag}
                   </Badge>
                 ))}
                 {item.tags.length > 3 && (
-                  <Badge variant="outline" className="text-xs border-slate-600 text-slate-300">
+                  <Badge
+                    variant="outline"
+                    className="text-xs border-slate-600 text-slate-300"
+                  >
                     +{item.tags.length - 3}
                   </Badge>
                 )}
@@ -408,8 +474,8 @@ export default function MediaLibraryClient({ user }: MediaLibraryClientProps) {
                 <span>{item.uploadDate}</span>
               </div>
               <div className="flex gap-1">
-                <Button 
-                  size="sm" 
+                <Button
+                  size="sm"
                   className="bg-purple-600 hover:bg-purple-700 text-white flex-1"
                   onClick={(e) => {
                     e.stopPropagation();
@@ -418,9 +484,9 @@ export default function MediaLibraryClient({ user }: MediaLibraryClientProps) {
                 >
                   Select
                 </Button>
-                <Button 
-                  size="sm" 
-                  variant="outline" 
+                <Button
+                  size="sm"
+                  variant="outline"
                   className="border-slate-700 bg-slate-900 text-slate-200 hover:bg-slate-700"
                   onClick={(e) => {
                     e.stopPropagation();
@@ -442,9 +508,9 @@ export default function MediaLibraryClient({ user }: MediaLibraryClientProps) {
       {filteredItems.map((item) => {
         const isSelected = selectedItems.includes(item.id);
         const FileIcon = getFileIcon(item.type);
-        
+
         return (
-          <Card 
+          <Card
             key={item.id}
             className={`bg-slate-800 border-slate-700 cursor-pointer transition-all hover:border-purple-500 ${
               isSelected ? "border-purple-500 ring-2 ring-purple-500/20" : ""
@@ -454,19 +520,32 @@ export default function MediaLibraryClient({ user }: MediaLibraryClientProps) {
             <CardContent className="p-4">
               <div className="flex items-center gap-4">
                 <div className="w-16 h-16 rounded-lg overflow-hidden flex-shrink-0">
-                  <img src={item.src} alt={item.title} className="w-full h-full object-cover" />
+                  <img
+                    src={item.src}
+                    alt={item.title}
+                    className="w-full h-full object-cover"
+                  />
                 </div>
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2 mb-1">
-                    <h3 className="text-white font-medium truncate">{item.title}</h3>
-                    <Badge variant="secondary" className="bg-slate-700 text-slate-200">
+                    <h3 className="text-white font-medium truncate">
+                      {item.title}
+                    </h3>
+                    <Badge
+                      variant="secondary"
+                      className="bg-slate-700 text-slate-200"
+                    >
                       <FileIcon className="w-3 h-3 mr-1" />
                       {item.type}
                     </Badge>
                   </div>
                   <div className="flex flex-wrap gap-1 mb-2">
                     {item.tags.map((tag) => (
-                      <Badge key={tag} variant="outline" className="text-xs border-slate-600 text-slate-300">
+                      <Badge
+                        key={tag}
+                        variant="outline"
+                        className="text-xs border-slate-600 text-slate-300"
+                      >
                         #{tag}
                       </Badge>
                     ))}
@@ -479,12 +558,15 @@ export default function MediaLibraryClient({ user }: MediaLibraryClientProps) {
                   </div>
                 </div>
                 <div className="flex gap-2">
-                  <Button size="sm" className="bg-purple-600 hover:bg-purple-700 text-white">
+                  <Button
+                    size="sm"
+                    className="bg-purple-600 hover:bg-purple-700 text-white"
+                  >
                     Select
                   </Button>
-                  <Button 
-                    size="sm" 
-                    variant="outline" 
+                  <Button
+                    size="sm"
+                    variant="outline"
                     className="border-slate-700 bg-slate-900 text-slate-200 hover:bg-slate-700"
                     onClick={(e) => {
                       e.stopPropagation();
@@ -503,7 +585,7 @@ export default function MediaLibraryClient({ user }: MediaLibraryClientProps) {
   );
 
   return (
-    <div 
+    <div
       className="min-h-screen bg-slate-900 p-6 lg:p-8"
       onDragEnter={handleDrag}
       onDragLeave={handleDrag}
@@ -513,7 +595,9 @@ export default function MediaLibraryClient({ user }: MediaLibraryClientProps) {
       <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <h1 className="text-2xl font-bold text-white">Media Library</h1>
-          <p className="text-slate-400 text-sm">Upload, organize, edit and manage your media assets</p>
+          <p className="text-slate-400 text-sm">
+            Upload, organize, edit and manage your media assets
+          </p>
         </div>
         <div className="flex gap-2">
           <Dialog open={uploadOpen} onOpenChange={setUploadOpen}>
@@ -525,18 +609,26 @@ export default function MediaLibraryClient({ user }: MediaLibraryClientProps) {
             </DialogTrigger>
             <DialogContent className="bg-slate-900 border-slate-800 max-w-2xl">
               <DialogHeader>
-                <DialogTitle className="text-white">Upload Media Files</DialogTitle>
+                <DialogTitle className="text-white">
+                  Upload Media Files
+                </DialogTitle>
               </DialogHeader>
               <div className="space-y-4">
-                <div 
+                <div
                   className={`border-2 border-dashed rounded-lg p-8 text-center transition-colors ${
-                    dragActive ? 'border-purple-500 bg-purple-500/10' : 'border-slate-600'
+                    dragActive
+                      ? "border-purple-500 bg-purple-500/10"
+                      : "border-slate-600"
                   }`}
                 >
                   <CloudUpload className="w-12 h-12 text-slate-400 mx-auto mb-4" />
-                  <p className="text-white font-medium mb-2">Drag & drop files here</p>
-                  <p className="text-slate-400 text-sm mb-4">or click to browse</p>
-                  <Button 
+                  <p className="text-white font-medium mb-2">
+                    Drag & drop files here
+                  </p>
+                  <p className="text-slate-400 text-sm mb-4">
+                    or click to browse
+                  </p>
+                  <Button
                     onClick={() => fileInputRef.current?.click()}
                     className="bg-purple-600 hover:bg-purple-700 text-white"
                   >
@@ -548,10 +640,12 @@ export default function MediaLibraryClient({ user }: MediaLibraryClientProps) {
                     multiple
                     accept="image/*,video/*,audio/*"
                     className="hidden"
-                    onChange={(e) => e.target.files && handleFiles(e.target.files)}
+                    onChange={(e) =>
+                      e.target.files && handleFiles(e.target.files)
+                    }
                   />
                 </div>
-                
+
                 {isUploading && (
                   <div className="space-y-2">
                     <div className="flex justify-between text-sm text-slate-300">
@@ -564,13 +658,17 @@ export default function MediaLibraryClient({ user }: MediaLibraryClientProps) {
 
                 <div className="grid grid-cols-2 gap-4 text-xs text-slate-400">
                   <div>
-                    <p className="font-medium text-slate-300 mb-1">Supported formats:</p>
+                    <p className="font-medium text-slate-300 mb-1">
+                      Supported formats:
+                    </p>
                     <p>Images: JPG, PNG, GIF, WebP, SVG</p>
                     <p>Videos: MP4, MOV, AVI, WebM</p>
                     <p>Audio: MP3, WAV, OGG</p>
                   </div>
                   <div>
-                    <p className="font-medium text-slate-300 mb-1">File limits:</p>
+                    <p className="font-medium text-slate-300 mb-1">
+                      File limits:
+                    </p>
                     <p>Max size: 100MB per file</p>
                     <p>Max files: 50 at once</p>
                     <p>Total storage: 10GB</p>
@@ -579,17 +677,22 @@ export default function MediaLibraryClient({ user }: MediaLibraryClientProps) {
               </div>
             </DialogContent>
           </Dialog>
-          
+
           <Dialog open={createFolderOpen} onOpenChange={setCreateFolderOpen}>
             <DialogTrigger asChild>
-              <Button variant="outline" className="border-slate-700 bg-slate-800 text-slate-200 hover:bg-slate-700">
+              <Button
+                variant="outline"
+                className="border-slate-700 bg-slate-800 text-slate-200 hover:bg-slate-700"
+              >
                 <FolderPlus className="w-4 h-4 mr-2" />
                 Create Folder
               </Button>
             </DialogTrigger>
             <DialogContent className="bg-slate-900 border-slate-800">
               <DialogHeader>
-                <DialogTitle className="text-white">Create New Folder</DialogTitle>
+                <DialogTitle className="text-white">
+                  Create New Folder
+                </DialogTitle>
               </DialogHeader>
               <div className="space-y-4">
                 <Input
@@ -604,8 +707,8 @@ export default function MediaLibraryClient({ user }: MediaLibraryClientProps) {
                   <Button className="bg-purple-600 hover:bg-purple-700 text-white flex-1">
                     Create Folder
                   </Button>
-                  <Button 
-                    variant="outline" 
+                  <Button
+                    variant="outline"
                     className="border-slate-700 bg-slate-800 text-slate-200 hover:bg-slate-700"
                     onClick={() => setCreateFolderOpen(false)}
                   >
@@ -635,9 +738,9 @@ export default function MediaLibraryClient({ user }: MediaLibraryClientProps) {
               {filterOptions.map((option) => (
                 <button
                   key={option.value}
-                  onClick={() => setSelectedFilter(option.value)}
+                  onClick={() => setMediaFilter(option.value)}
                   className={`px-3 py-1.5 text-sm rounded-md transition-colors ${
-                    selectedFilter === option.value
+                    mediaFilter === option.value
                       ? "bg-purple-600 text-white"
                       : "text-slate-300 hover:text-white hover:bg-slate-700"
                   }`}
@@ -650,7 +753,9 @@ export default function MediaLibraryClient({ user }: MediaLibraryClientProps) {
               <button
                 onClick={() => setViewMode("grid")}
                 className={`p-2 rounded-md transition-colors ${
-                  viewMode === "grid" ? "bg-purple-600 text-white" : "text-slate-300 hover:text-white hover:bg-slate-700"
+                  viewMode === "grid"
+                    ? "bg-purple-600 text-white"
+                    : "text-slate-300 hover:text-white hover:bg-slate-700"
                 }`}
               >
                 <Grid3X3 className="w-4 h-4" />
@@ -658,7 +763,9 @@ export default function MediaLibraryClient({ user }: MediaLibraryClientProps) {
               <button
                 onClick={() => setViewMode("list")}
                 className={`p-2 rounded-md transition-colors ${
-                  viewMode === "list" ? "bg-purple-600 text-white" : "text-slate-300 hover:text-white hover:bg-slate-700"
+                  viewMode === "list"
+                    ? "bg-purple-600 text-white"
+                    : "text-slate-300 hover:text-white hover:bg-slate-700"
                 }`}
               >
                 <List className="w-4 h-4" />
@@ -688,22 +795,39 @@ export default function MediaLibraryClient({ user }: MediaLibraryClientProps) {
         <div className="mb-6 p-4 bg-slate-800 rounded-lg border border-slate-700">
           <div className="flex items-center justify-between">
             <span className="text-white font-medium">
-              {selectedItems.length} item{selectedItems.length > 1 ? "s" : ""} selected
+              {selectedItems.length} item{selectedItems.length > 1 ? "s" : ""}{" "}
+              selected
             </span>
             <div className="flex gap-2">
-              <Button size="sm" variant="outline" className="border-slate-700 bg-slate-900 text-slate-200 hover:bg-slate-700">
+              <Button
+                size="sm"
+                variant="outline"
+                className="border-slate-700 bg-slate-900 text-slate-200 hover:bg-slate-700"
+              >
                 <Download className="w-4 h-4 mr-2" />
                 Download
               </Button>
-              <Button size="sm" variant="outline" className="border-slate-700 bg-slate-900 text-slate-200 hover:bg-slate-700">
+              <Button
+                size="sm"
+                variant="outline"
+                className="border-slate-700 bg-slate-900 text-slate-200 hover:bg-slate-700"
+              >
                 <Copy className="w-4 h-4 mr-2" />
                 Duplicate
               </Button>
-              <Button size="sm" variant="outline" className="border-slate-700 bg-slate-900 text-slate-200 hover:bg-slate-700">
+              <Button
+                size="sm"
+                variant="outline"
+                className="border-slate-700 bg-slate-900 text-slate-200 hover:bg-slate-700"
+              >
                 <Share2 className="w-4 h-4 mr-2" />
                 Share
               </Button>
-              <Button size="sm" variant="outline" className="border-slate-700 bg-slate-900 text-slate-200 hover:bg-slate-700">
+              <Button
+                size="sm"
+                variant="outline"
+                className="border-slate-700 bg-slate-900 text-slate-200 hover:bg-slate-700"
+              >
                 <Tag className="w-4 h-4 mr-2" />
                 Add Tags
               </Button>
@@ -726,25 +850,34 @@ export default function MediaLibraryClient({ user }: MediaLibraryClientProps) {
             <DialogTitle className="text-white flex items-center justify-between">
               <span>Advanced Media Editor - {editingItem?.title}</span>
               <div className="flex gap-2">
-                <Button size="sm" variant="outline" onClick={resetEditor} className="border-slate-700 bg-slate-800 text-slate-200 hover:bg-slate-700">
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={resetEditor}
+                  className="border-slate-700 bg-slate-800 text-slate-200 hover:bg-slate-700"
+                >
                   <RefreshCw className="w-4 h-4 mr-1" />
                   Reset
                 </Button>
-                <Button size="sm" onClick={applyEdits} className="bg-purple-600 hover:bg-purple-700 text-white">
+                <Button
+                  size="sm"
+                  onClick={applyEdits}
+                  className="bg-purple-600 hover:bg-purple-700 text-white"
+                >
                   <Save className="w-4 h-4 mr-1" />
                   Save Changes
                 </Button>
               </div>
             </DialogTitle>
           </DialogHeader>
-          
+
           {editingItem && (
             <div className="grid lg:grid-cols-3 gap-6 h-[calc(90vh-120px)] overflow-hidden">
               {/* Image Preview */}
               <div className="lg:col-span-2 space-y-4 overflow-hidden">
                 <div className="aspect-video rounded-lg overflow-hidden bg-slate-800 relative">
-                  <img 
-                    src={editingItem.src} 
+                  <img
+                    src={editingItem.src}
                     alt={editingItem.title}
                     className="w-full h-full object-contain"
                     style={{
@@ -754,7 +887,7 @@ export default function MediaLibraryClient({ user }: MediaLibraryClientProps) {
                         saturate(${1 + adjustments.saturation / 100})
                         hue-rotate(${adjustments.hue}deg)
                         blur(${adjustments.blur}px)
-                        ${selectedFilter !== "none" ? filterEffects.find(f => f.value === selectedFilter)?.value || "" : ""}
+                        ${selectedFilterEffect !== "none" ? filterEffects.find((f) => f.value === selectedFilterEffect)?.value || "" : ""}
                       `,
                       transform: `
                         rotate(${rotation}deg)
@@ -764,7 +897,7 @@ export default function MediaLibraryClient({ user }: MediaLibraryClientProps) {
                       `,
                     }}
                   />
-                  
+
                   {/* Crop overlay */}
                   {activeTab === "crop" && (
                     <div className="absolute inset-0 border-2 border-dashed border-purple-500 bg-black/20">
@@ -774,25 +907,55 @@ export default function MediaLibraryClient({ user }: MediaLibraryClientProps) {
                     </div>
                   )}
                 </div>
-                
+
                 {/* Quick Actions */}
                 <div className="flex gap-2 justify-center">
-                  <Button size="sm" variant="outline" onClick={() => setRotation(r => r - 90)} className="border-slate-700 bg-slate-800 text-slate-200 hover:bg-slate-700">
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={() => setRotation((r) => r - 90)}
+                    className="border-slate-700 bg-slate-800 text-slate-200 hover:bg-slate-700"
+                  >
                     <RotateCcw className="w-4 h-4" />
                   </Button>
-                  <Button size="sm" variant="outline" onClick={() => setRotation(r => r + 90)} className="border-slate-700 bg-slate-800 text-slate-200 hover:bg-slate-700">
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={() => setRotation((r) => r + 90)}
+                    className="border-slate-700 bg-slate-800 text-slate-200 hover:bg-slate-700"
+                  >
                     <RotateCw className="w-4 h-4" />
                   </Button>
-                  <Button size="sm" variant="outline" onClick={() => setFlipH(!flipH)} className="border-slate-700 bg-slate-800 text-slate-200 hover:bg-slate-700">
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={() => setFlipH(!flipH)}
+                    className="border-slate-700 bg-slate-800 text-slate-200 hover:bg-slate-700"
+                  >
                     <FlipHorizontal className="w-4 h-4" />
                   </Button>
-                  <Button size="sm" variant="outline" onClick={() => setFlipV(!flipV)} className="border-slate-700 bg-slate-800 text-slate-200 hover:bg-slate-700">
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={() => setFlipV(!flipV)}
+                    className="border-slate-700 bg-slate-800 text-slate-200 hover:bg-slate-700"
+                  >
                     <FlipVertical className="w-4 h-4" />
                   </Button>
-                  <Button size="sm" variant="outline" onClick={() => setZoom(z => Math.max(25, z - 25))} className="border-slate-700 bg-slate-800 text-slate-200 hover:bg-slate-700">
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={() => setZoom((z) => Math.max(25, z - 25))}
+                    className="border-slate-700 bg-slate-800 text-slate-200 hover:bg-slate-700"
+                  >
                     <ZoomOut className="w-4 h-4" />
                   </Button>
-                  <Button size="sm" variant="outline" onClick={() => setZoom(z => Math.min(400, z + 25))} className="border-slate-700 bg-slate-800 text-slate-200 hover:bg-slate-700">
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={() => setZoom((z) => Math.min(400, z + 25))}
+                    className="border-slate-700 bg-slate-800 text-slate-200 hover:bg-slate-700"
+                  >
                     <ZoomIn className="w-4 h-4" />
                   </Button>
                 </div>
@@ -802,23 +965,37 @@ export default function MediaLibraryClient({ user }: MediaLibraryClientProps) {
               <div className="space-y-4 overflow-y-auto">
                 <Tabs value={activeTab} onValueChange={setActiveTab}>
                   <TabsList className="grid w-full grid-cols-4 bg-slate-800">
-                    <TabsTrigger value="crop" className="data-[state=active]:bg-slate-700 text-slate-200">
+                    <TabsTrigger
+                      value="crop"
+                      className="data-[state=active]:bg-slate-700 text-slate-200"
+                    >
                       <Crop className="w-4 h-4" />
                     </TabsTrigger>
-                    <TabsTrigger value="adjust" className="data-[state=active]:bg-slate-700 text-slate-200">
+                    <TabsTrigger
+                      value="adjust"
+                      className="data-[state=active]:bg-slate-700 text-slate-200"
+                    >
                       <Sliders className="w-4 h-4" />
                     </TabsTrigger>
-                    <TabsTrigger value="filters" className="data-[state=active]:bg-slate-700 text-slate-200">
+                    <TabsTrigger
+                      value="filters"
+                      className="data-[state=active]:bg-slate-700 text-slate-200"
+                    >
                       <Palette className="w-4 h-4" />
                     </TabsTrigger>
-                    <TabsTrigger value="details" className="data-[state=active]:bg-slate-700 text-slate-200">
+                    <TabsTrigger
+                      value="details"
+                      className="data-[state=active]:bg-slate-700 text-slate-200"
+                    >
                       <Settings className="w-4 h-4" />
                     </TabsTrigger>
                   </TabsList>
 
                   <TabsContent value="crop" className="space-y-4">
                     <div>
-                      <label className="text-sm font-medium text-slate-200 mb-2 block">Crop Presets</label>
+                      <label className="text-sm font-medium text-slate-200 mb-2 block">
+                        Crop Presets
+                      </label>
                       <div className="grid grid-cols-2 gap-2">
                         {cropPresets.map((preset) => (
                           <Button
@@ -832,43 +1009,65 @@ export default function MediaLibraryClient({ user }: MediaLibraryClientProps) {
                         ))}
                       </div>
                     </div>
-                    
+
                     <div className="space-y-3">
                       <div>
-                        <label className="text-sm text-slate-200">X Position: {cropSettings.x}%</label>
+                        <label className="text-sm text-slate-200">
+                          X Position: {cropSettings.x}%
+                        </label>
                         <Slider
                           value={[cropSettings.x]}
-                          onValueChange={([value]) => setCropSettings(prev => ({ ...prev, x: value }))}
+                          onValueChange={([value]) =>
+                            setCropSettings((prev) => ({ ...prev, x: value }))
+                          }
                           max={100}
                           step={1}
                           className="mt-2"
                         />
                       </div>
                       <div>
-                        <label className="text-sm text-slate-200">Y Position: {cropSettings.y}%</label>
+                        <label className="text-sm text-slate-200">
+                          Y Position: {cropSettings.y}%
+                        </label>
                         <Slider
                           value={[cropSettings.y]}
-                          onValueChange={([value]) => setCropSettings(prev => ({ ...prev, y: value }))}
+                          onValueChange={([value]) =>
+                            setCropSettings((prev) => ({ ...prev, y: value }))
+                          }
                           max={100}
                           step={1}
                           className="mt-2"
                         />
                       </div>
                       <div>
-                        <label className="text-sm text-slate-200">Width: {cropSettings.width}%</label>
+                        <label className="text-sm text-slate-200">
+                          Width: {cropSettings.width}%
+                        </label>
                         <Slider
                           value={[cropSettings.width]}
-                          onValueChange={([value]) => setCropSettings(prev => ({ ...prev, width: value }))}
+                          onValueChange={([value]) =>
+                            setCropSettings((prev) => ({
+                              ...prev,
+                              width: value,
+                            }))
+                          }
                           max={100}
                           step={1}
                           className="mt-2"
                         />
                       </div>
                       <div>
-                        <label className="text-sm text-slate-200">Height: {cropSettings.height}%</label>
+                        <label className="text-sm text-slate-200">
+                          Height: {cropSettings.height}%
+                        </label>
                         <Slider
                           value={[cropSettings.height]}
-                          onValueChange={([value]) => setCropSettings(prev => ({ ...prev, height: value }))}
+                          onValueChange={([value]) =>
+                            setCropSettings((prev) => ({
+                              ...prev,
+                              height: value,
+                            }))
+                          }
                           max={100}
                           step={1}
                           className="mt-2"
@@ -882,16 +1081,19 @@ export default function MediaLibraryClient({ user }: MediaLibraryClientProps) {
                       {Object.entries(adjustments).map(([key, value]) => (
                         <div key={key}>
                           <label className="text-sm text-slate-200 capitalize">
-                            {key.replace(/([A-Z])/g, ' $1')}: {value}
+                            {key.replace(/([A-Z])/g, " $1")}: {value}
                           </label>
                           <Slider
                             value={[value]}
-                            onValueChange={([newValue]) => 
-                              setAdjustments(prev => ({ ...prev, [key]: newValue }))
+                            onValueChange={([newValue]) =>
+                              setAdjustments((prev) => ({
+                                ...prev,
+                                [key]: newValue,
+                              }))
                             }
-                            min={key === 'blur' ? 0 : -100}
-                            max={key === 'blur' ? 10 : 100}
-                            step={key === 'blur' ? 0.1 : 1}
+                            min={key === "blur" ? 0 : -100}
+                            max={key === "blur" ? 10 : 100}
+                            step={key === "blur" ? 0.1 : 1}
                             className="mt-2"
                           />
                         </div>
@@ -901,17 +1103,25 @@ export default function MediaLibraryClient({ user }: MediaLibraryClientProps) {
 
                   <TabsContent value="filters" className="space-y-4">
                     <div>
-                      <label className="text-sm font-medium text-slate-200 mb-2 block">Filter Effects</label>
+                      <label className="text-sm font-medium text-slate-200 mb-2 block">
+                        Filter Effects
+                      </label>
                       <div className="grid grid-cols-2 gap-2">
                         {filterEffects.map((filter) => (
                           <Button
                             key={filter.value}
                             size="sm"
-                            variant={selectedFilter === filter.value ? "default" : "outline"}
-                            onClick={() => setSelectedFilterEffect(filter.value)}
+                            variant={
+                              selectedFilterEffect === filter.value
+                                ? "default"
+                                : "outline"
+                            }
+                            onClick={() =>
+                              setSelectedFilterEffect(filter.value)
+                            }
                             className={`text-xs ${
-                              selectedFilter === filter.value 
-                                ? "bg-purple-600 hover:bg-purple-700 text-white" 
+                              selectedFilterEffect === filter.value
+                                ? "bg-purple-600 hover:bg-purple-700 text-white"
                                 : "border-slate-700 bg-slate-800 text-slate-200 hover:bg-slate-700"
                             }`}
                           >
@@ -924,38 +1134,52 @@ export default function MediaLibraryClient({ user }: MediaLibraryClientProps) {
 
                   <TabsContent value="details" className="space-y-4">
                     <div>
-                      <label className="text-sm font-medium text-slate-200 mb-2 block">Title</label>
-                      <Input 
+                      <label className="text-sm font-medium text-slate-200 mb-2 block">
+                        Title
+                      </label>
+                      <Input
                         defaultValue={editingItem.title}
                         className="bg-slate-800 border-slate-700 text-white"
                       />
                     </div>
                     <div>
-                      <label className="text-sm font-medium text-slate-200 mb-2 block">Description</label>
-                      <Textarea 
+                      <label className="text-sm font-medium text-slate-200 mb-2 block">
+                        Description
+                      </label>
+                      <Textarea
                         defaultValue={editingItem.description || ""}
                         placeholder="Add a description..."
                         className="bg-slate-800 border-slate-700 text-white"
                       />
                     </div>
                     <div>
-                      <label className="text-sm font-medium text-slate-200 mb-2 block">Tags</label>
-                      <Input 
+                      <label className="text-sm font-medium text-slate-200 mb-2 block">
+                        Tags
+                      </label>
+                      <Input
                         defaultValue={editingItem.tags.join(", ")}
                         placeholder="Enter tags separated by commas"
                         className="bg-slate-800 border-slate-700 text-white"
                       />
                     </div>
                     <div>
-                      <label className="text-sm font-medium text-slate-200 mb-2 block">Folder</label>
+                      <label className="text-sm font-medium text-slate-200 mb-2 block">
+                        Folder
+                      </label>
                       <Select defaultValue={editingItem.folder || "None"}>
                         <SelectTrigger className="bg-slate-800 border-slate-700 text-white">
                           <SelectValue />
                         </SelectTrigger>
                         <SelectContent className="bg-slate-800 border-slate-700">
-                          <SelectItem value="None" className="text-white">No Folder</SelectItem>
+                          <SelectItem value="None" className="text-white">
+                            No Folder
+                          </SelectItem>
                           {folders.slice(1).map((folder) => (
-                            <SelectItem key={folder} value={folder} className="text-white">
+                            <SelectItem
+                              key={folder}
+                              value={folder}
+                              className="text-white"
+                            >
                               {folder}
                             </SelectItem>
                           ))}

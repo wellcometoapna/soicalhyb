@@ -13,7 +13,7 @@ import {
   PenTool,
   Calendar,
   Users,
-  Image,
+  FileText,
   BarChart3,
   Settings,
   LogOut,
@@ -75,9 +75,9 @@ const navigation = [
     current: false,
   },
   {
-    name: "Media Library",
-    href: "/dashboard/media",
-    icon: Image,
+    name: "Templates",
+    href: "/dashboard/templates",
+    icon: FileText,
     current: false,
   },
   {
