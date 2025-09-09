@@ -13,7 +13,7 @@ export async function GET(request: NextRequest) {
   const supabase = await createClient();
   
   try {
-    // Exchange code for access token
+    // 1. Exchange code for access token
     const tokenResponse = await fetch('https://www.linkedin.com/oauth/v2/accessToken', {
       method: 'POST',
       headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
@@ -27,32 +27,30 @@ export async function GET(request: NextRequest) {
     });
 
     const tokenData = await tokenResponse.json();
-    
-    if (tokenData.error) {
-      throw new Error(tokenData.error_description);
-    }
+    if (tokenData.error) throw new Error(tokenData.error_description);
 
-    // Get user profile
-    const profileResponse = await fetch('https://api.linkedin.com/v2/people/~:(id,firstName,lastName,profilePicture(displayImage~:playableStreams))', {
-      headers: { 'Authorization': `Bearer ${tokenData.access_token}` },
+    // 2. Get user info from OpenID Connect endpoint
+    const userInfoResponse = await fetch('https://api.linkedin.com/v2/userinfo', {
+      headers: { Authorization: `Bearer ${tokenData.access_token}` },
     });
-    const profileData = await profileResponse.json();
+    const userInfo = await userInfoResponse.json();
 
-    const displayName = `${profileData.firstName?.localized?.en_US || ''} ${profileData.lastName?.localized?.en_US || ''}`.trim();
+    // 3. Prepare fields
+    const displayName = userInfo.name || `${userInfo.given_name || ''} ${userInfo.family_name || ''}`.trim();
 
-    // Save to database
+    // 4. Save to database
     const { error } = await supabase
       .from('social_accounts')
       .upsert({
         user_id: state,
         platform: 'linkedin',
-        platform_user_id: profileData.id,
+        platform_user_id: userInfo.sub, // ✅ use OpenID "sub" as LinkedIn ID
         username: displayName,
         display_name: displayName,
-        profile_image_url: profileData.profilePicture?.displayImage?.elements?.[0]?.identifiers?.[0]?.identifier,
+        profile_image_url: userInfo.picture,
         access_token: tokenData.access_token,
         token_expires_at: new Date(Date.now() + (tokenData.expires_in * 1000)).toISOString(),
-        account_data: profileData,
+        account_data: userInfo,
         is_active: true,
       });
 
